@@ -1,20 +1,40 @@
-import openai
+import requests
+import json
+import pyperclip
 
-def send_to_open_ai(prompt):
-    with open('file.txt', 'r') as f:
-        blah=f.read()
-        openai.api_key=blah
-        response= openai.Completion.create(
-        model='text-davinci-003',
-        prompt=prompt,
-        tempurature=1.0,
-        max_tokens=2000,
-        top_p=1.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0,
-        )
-        text= response.choices[0].text
-        return text
 
-prompt=input('Enter Prompt: ' )
-response=send_to_open_ai(prompt)
+import warnings
+
+
+warnings.filterwarnings("ignore")
+
+with open('file.txt', 'r') as f:
+    blah=f.read()
+
+while True:
+    clear_clipboard=pyperclip.copy('')
+    prompt=input('\nEnter Prompt And/OR copy content: ')
+    paste_clipboard = pyperclip.paste()
+    prompt=prompt + ('\n'+paste_clipboard)
+    url = 'https://api.openai.com/v1/completions'
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer '+blah}
+    data = {
+      "model": "text-davinci-003",
+      "prompt": prompt,
+      "temperature": 0.3,
+      "max_tokens": 521,
+      "top_p": 1,
+      "frequency_penalty": 0,
+      "presence_penalty": 0
+    }
+
+    response = requests.post(url, headers=headers, json=data,verify=False)
+    
+
+    data = json.loads(response.text)
+    
+    try:
+        print((data)['choices'][0]['text'])
+        
+    except Exception as e:
+        print(response.text)
